@@ -5,6 +5,10 @@ import { getRequest } from "@/features/requests/server/get-request";
 
 import { RequestActions } from "@/components/requests/request-actions";
 
+import { EditDraftForm } from "@/components/requests/edit-draft-form";
+
+import { ReviewRequestButton } from "@/components/requests/review-request-button";
+
 const statusLabels = {
   NEW: "New",
   DRAFT_READY: "Draft ready",
@@ -163,23 +167,35 @@ const category =
             ) : (
               <div className="mt-6 space-y-6">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Summary
-                  </p>
+                {request.status === "DRAFT_READY" && draft ? (
+  <EditDraftForm
+    requestId={request.id}
+    initialSummary={draft.summary}
+    initialCategory={draft.category}
+  />
+) : (
+  <>
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Summary
+      </p>
 
-                  <p className="mt-2 text-sm leading-6 text-slate-700">
-                    {summary}
-                  </p>
-                </div>
+      <p className="mt-2 text-sm leading-6 text-slate-700">
+        {summary}
+      </p>
+    </div>
 
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Category
-                  </p>
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Category
+      </p>
 
-                  <p className="mt-2 text-sm font-medium text-slate-900">
-                    {category ? categoryLabels[category] : "Not classified"}
-                  </p>
+      <p className="mt-2 text-sm font-medium text-slate-900">
+        {category ? categoryLabels[category] : "Not classified"}
+      </p>
+    </div>
+  </>
+)}
                 </div>
 
                 <div>
@@ -217,9 +233,20 @@ const category =
                           Completion: {action.completionCriterion}
                         </p>
                       </div>
+
+                      
                     ))}
+                    
                   </div>
+                  {request.status === "DRAFT_READY" && draft && (
+  <ReviewRequestButton
+    requestId={request.id}
+    summary={draft.summary}
+    category={draft.category}
+  />
+)}
                 </div>
+                
               </div>
             )}
           </section>
