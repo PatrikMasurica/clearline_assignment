@@ -23,7 +23,13 @@ export class MockDraftProvider implements DraftProvider {
   async generateDraft(
     input: DraftGenerationInput,
   ): Promise<DraftProviderResult> {
+    if (process.env.MOCK_PROVIDER_FAILURE === "true") {
+      throw new Error("Mock provider failure.");
+    }
+
     const message = input.clientMessage.toLowerCase();
+
+  
 
     if (
       message.includes("website") &&
