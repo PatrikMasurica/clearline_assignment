@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum RequestStatus {
+  NEW
+  DRAFT_READY
+  REVIEWED
+}
+
+enum RequestCategory {
+  NEW_PROJECT
+  SUPPORT
+  CHANGE_REQUEST
+  UNCLEAR
+}
+
+model Request {
+  id             String        @id @default(cuid())
+  clientName     String
+  existingScope  String?
+  clientMessage  String
+  status         RequestStatus @default(NEW)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  drafts         Draft?
+  review         Review?
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Draft {
+  id                     String          @id @default(cuid())
+  requestId              String @unique
+  summary                String
+  category               RequestCategory
+  clarificationQuestions Json
+  provider               String          @default("Mock")
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+
+  request    Request     @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  nextActions NextAction[]
+
+  @@index([requestId])
+}
+
+model NextAction {
+  id                  String   @id @default(cuid())
+  draftId             String
+  position            Int
+  action              String
+  ownerRole           String
+  completionCriterion String
+
+  draft Draft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  @@unique([draftId, position])
+}
+
+model Review {
+  id            String          @id @default(cuid())
+  requestId     String          @unique
+  finalSummary  String
+  finalCategory RequestCategory
+  reviewedAt    DateTime        @default(now())
+
+  request Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
+}
