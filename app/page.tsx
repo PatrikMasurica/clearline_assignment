@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { listRequests } from "@/features/requests/server/list-requests";
+import { StatusFilter } from "@/components/requests/status-filter";
 
 const statusLabels = {
   NEW: "New",
@@ -22,8 +23,25 @@ function formatDate(date: Date) {
   }).format(date);
 }
 
-export default async function HomePage() {
-  const requests = await listRequests();
+type HomePageProps = {
+  searchParams: Promise<{
+    status?: string;
+  }>;
+};
+
+export default async function HomePage({
+  searchParams,
+}: HomePageProps) {
+  const params = await searchParams;
+
+  const status =
+    params.status === "NEW" ||
+    params.status === "DRAFT_READY" ||
+    params.status === "REVIEWED"
+      ? params.status
+      : undefined;
+
+  const requests = await listRequests(status);
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -63,6 +81,8 @@ export default async function HomePage() {
             >
               Client requests
             </h2>
+
+            <StatusFilter value={status} />
 
             <p className="mt-1 text-sm text-slate-500">
               {requests.length}{" "}

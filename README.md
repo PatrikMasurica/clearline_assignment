@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Client Request Review Tool
 
-## Getting Started
+A small full-stack workflow for capturing client requests, generating a deterministic triage draft, and requiring human review before a request becomes finalized.
 
-First, run the development server:
+## Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The Client Request Review Tool helps a team turn incoming client messages into structured triage information.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The workflow is:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+NEW -> DRAFT_READY -> REVIEWED
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The original client request is immutable after creation. Provider-generated content is treated as a draft, and a human reviewer can edit the summary and category before marking the request as Reviewed.
 
-## Learn More
+Reviewed requests are read-only.
 
-To learn more about Next.js, take a look at the following resources:
+## Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Next.js 16.3.5
+- React 19.2.8
+- TypeScript 5.9.3
+- Tailwind CSS 4.3.3
+- Prisma 7.10.0
+- SQLite
+- Zod 4.6.5
+- Vitest 5.0.1
+- pnpm 10.34.5
+- Node.js 22.22.3
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The project intentionally stays local and does not require an external AI API key.
 
-## Deploy on Vercel
+## Architecture
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The project separates UI, domain rules, validation, server-side operations, and infrastructure.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+app/
+  App Router pages and API routes
+
+components/requests/
+  Request-specific UI components
+
+features/requests/
+  domain/
+    State transition rules
+  schemas/
+    Request and provider validation
+  server/
+    Server-side request operations
+
+lib/
+  Prisma client
+  Draft provider boundary
+  Mock provider
+
+prisma/
+  Prisma schema
+  Migrations
+  Seed data
+
+tests/
+  Unit and integration tests
